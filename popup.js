@@ -189,22 +189,66 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-// --- 渲染多版本结果 ---
+// --- 渲染多版本结果（标签页） ---
 function renderMultiVersions(container, text) {
-  // 尝试按 --- 分隔各版本
+  // 按 --- 分隔各版本
   const parts = text.split(/\n?---\n?/).filter((p) => p.trim());
   if (parts.length <= 1) {
     container.innerHTML = `<div style="white-space:pre-wrap;">${escapeHtml(text)}</div>`;
     return;
   }
 
-  container.innerHTML = parts.map((part, i) => {
-    const label = `V${i + 1}`;
-    return `<div class="version-block">
-      <div class="version-label">${label}</div>
-      <div style="white-space:pre-wrap;">${escapeHtml(part.trim())}</div>
-    </div>`;
-  }).join('');
+  // 提取每个版本的标签和内容
+  const versions = parts.map((part, i) => {
+    const trimmed = part.trim();
+    // 尝试提取第一行作为标签: "版本N：描述" / "V1: desc" / "**版本1**" 等
+    const labelMatch = trimmed.match(/^(?:版本\s*[N\d]+|V\d+)\s*[：:]\s*(.+)/i);
+    let label, content;
+    if (labelMatch) {
+      label = labelMatch[1].trim();
+      content = trimmed.substring(labelMatch[0].length).trim();
+    } else {
+      // 取第一行（去除 markdown 标记）作标签，限长
+      const firstLine = trimmed.split('\n')[0].replace(/^[*#\s]+|[*#\s]+$/g, '').trim();
+      label = firstLine.length > 0 && firstLine.length < 20 ? firstLine : `版本 ${i + 1}`;
+      content = trimmed;
+    }
+    // 标签限长
+    if (label.length > 16) label = label.slice(0, 14) + '…';
+    return { label, content };
+  });
+
+  // 构建标签栏 + 内容区
+  const tabsHtml = versions.map((v, i) =>
+    `<button class="tab-btn${i === 0 ? ' active' : ''}" data-index="${i}">${escapeHtml(v.label)}</button>`
+  ).join('');
+
+  const contentsHtml = versions.map((v, i) =>
+    `<div class="tab-content${i === 0 ? ' active' : ''}" data-index="${i}">${escapeHtml(v.content)}</div>`
+  ).join('');
+
+  container.innerHTML = `
+    <div class="tab-bar">${tabsHtml}</div>
+    <div class="tab-contents">${contentsHtml}</div>
+  `;
+
+  // 绑定标签切换
+  const tabBar = container.querySelector('.tab-bar');
+  const tabContents = container.querySelectorAll('.tab-content');
+  tabBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    const idx = btn.dataset.index;
+
+    // 切换按钮状态
+    tabBar.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // 切换内容
+    tabContents.forEach((c) => c.classList.remove('active'));
+    const target = container.querySelector(`.tab-content[data-index="${idx}"]`);
+    if (target) target.classList.add('active');
+  });
 }
 
 // --- 调用 AI API ---
