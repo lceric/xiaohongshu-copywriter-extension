@@ -3,130 +3,291 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    :root {
+      --bg:            #faf8f5;
+      --bg-card:       #fffef9;
+      --bg-input:      #faf8f3;
+      --text:          #2c2416;
+      --text-secondary:#6b5e4a;
+      --text-muted:    #a09880;
+      --accent:        #ff2442;
+      --accent-hover:  #d91e38;
+      --accent-soft:   #fff0f3;
+      --accent-glow:   rgba(255,36,66,0.12);
+      --border:        #e4dbce;
+      --border-light:  #f0e8d8;
+      --shadow-sm:     0 1px 2px rgba(44,36,22,0.04);
+      --shadow-md:     0 1px 3px rgba(44,36,22,0.06), 0 6px 20px rgba(44,36,22,0.04);
+      --shadow-lg:     0 2px 8px rgba(44,36,22,0.06), 0 12px 32px rgba(44,36,22,0.05);
+      --radius-sm:     8px;
+      --radius-md:     12px;
+      --radius-lg:     16px;
+      --font-serif:    "STSong", "Songti SC", "Noto Serif SC", "SimSun", "KaiTi", serif;
+      --font-sans:     "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+      --success:       #5b8c5a;
+      --warning:       #d4843a;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       width: 460px;
       min-height: 300px;
-      font-family: -apple-system, "Microsoft YaHei", sans-serif;
-      background: #fff;
-      padding: 20px;
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
     }
-    h1 { font-size: 16px; color: #333; margin-bottom: 4px; }
-    .sub { font-size: 12px; color: #999; margin-bottom: 16px; }
 
+    /* ── Grain texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    }
+
+    /* ── Decorative top accent ── */
+    body::after {
+      content: '';
+      position: absolute; top: 0; left: 16px; right: 16px; height: 2px; z-index: 1;
+      background: linear-gradient(90deg, transparent, var(--accent) 20%, var(--accent) 80%, transparent);
+      border-radius: 0 0 1px 1px;
+      opacity: 0.6;
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      padding: 20px 22px 22px;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      margin-bottom: 18px;
+    }
+    .page-header h1 {
+      font-size: 18px;
+      color: var(--text);
+      font-family: var(--font-serif);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .page-header .sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    /* ── Section card ── */
     .section {
-      background: #f8f8f8;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .section:focus-within {
+      border-color: var(--border);
+      box-shadow: var(--shadow-md);
     }
     .section label {
       display: block;
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 7px;
       font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
-    .section input, .section select {
+    .section input,
+    .section select {
       width: 100%;
-      padding: 8px 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
       font-size: 13px;
+      font-family: var(--font-sans);
+      background: var(--bg-input);
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .section input:focus, .section select:focus {
-      outline: none; border-color: #ff2442;
+    .section select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b5e4a' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
     }
-    .section input[type="password"] { font-family: monospace; }
+    .section input:focus,
+    .section select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .section input[type="password"] {
+      font-family: "SF Mono", "Cascadia Code", "Consolas", monospace;
+      letter-spacing: 0.03em;
+    }
 
     .row { display: flex; gap: 8px; }
     .row > * { flex: 1; }
 
-    .hint { font-size: 11px; color: #bbb; margin-top: 4px; }
-    .hint a { color: #ff2442; }
+    .hint {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .hint a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .hint a:hover { text-decoration: underline; }
 
-    .hidden { display: none; }
+    .hidden { display: none !important; }
 
+    /* ── Quick model chips ── */
+    #quickModels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    #quickModels button {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-card);
+      font-size: 11px;
+      font-family: var(--font-sans);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.18s;
+    }
+    #quickModels button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 1px 4px var(--accent-glow);
+    }
+    #quickModels button.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Save button ── */
     .btn-save {
       width: 100%;
-      padding: 10px;
-      background: #ff2442;
+      padding: 12px;
+      background: var(--accent);
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
+      font-family: var(--font-sans);
+      letter-spacing: 0.02em;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(255,36,66,0.2);
     }
-    .btn-save:hover { background: #e0203b; }
-    .btn-save.saved { background: #07c160; }
+    .btn-save:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(255,36,66,0.3); }
+    .btn-save:active { transform: scale(0.98); }
+    .btn-save.saved {
+      background: var(--success);
+      box-shadow: 0 2px 8px rgba(91,140,90,0.2);
+    }
 
+    /* ── Test result ── */
+    .test-result {
+      font-size: 12px;
+      margin-top: 8px;
+      min-height: 20px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .test-result.ok   { color: var(--success); }
+    .test-result.fail { color: var(--accent); }
+
+    /* ── Toast ── */
     .toast {
       text-align: center;
       font-size: 12px;
-      color: #07c160;
-      margin-top: 8px;
+      color: var(--success);
+      margin-top: 6px;
       opacity: 0;
       transition: opacity 0.3s;
+      font-weight: 500;
     }
     .toast.show { opacity: 1; }
 
-    .test-result {
-      font-size: 12px;
-      margin-top: 6px;
-      min-height: 18px;
-    }
-    .test-result.ok { color: #07c160; }
-    .test-result.fail { color: #ff2442; }
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   </style>
 </head>
 <body>
-  <h1>⚙️ API 设置</h1>
-  <p class="sub">支持 Anthropic / OpenAI / DeepSeek 及兼容接口</p>
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>⚙️ API 设置</h1>
+      <p class="sub">支持 Anthropic / OpenAI / DeepSeek 及兼容接口</p>
+    </div>
 
-  <!-- 提供商选择 -->
-  <div class="section">
-    <label>🏢 API 提供商</label>
-    <select id="provider">
-      <option value="anthropic">Anthropic（Claude）</option>
-      <option value="openai">OpenAI（GPT 系列）</option>
-      <option value="deepseek">DeepSeek</option>
-      <option value="custom">自定义（OpenAI 兼容接口）</option>
-    </select>
+    <!-- Provider -->
+    <div class="section">
+      <label>🏢 API 提供商</label>
+      <select id="provider">
+        <option value="anthropic">Anthropic（Claude）</option>
+        <option value="openai">OpenAI（GPT 系列）</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="custom">自定义（OpenAI 兼容接口）</option>
+      </select>
+    </div>
+
+    <!-- API Key -->
+    <div class="section">
+      <label id="keyLabel">🔑 API Key</label>
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-xxxxx...">
+      <p class="hint" id="keyHint">
+        <a href="https://console.anthropic.com/settings/keys" target="_blank">获取 Anthropic API Key →</a>
+      </p>
+    </div>
+
+    <!-- Base URL (custom only) -->
+    <div class="section hidden" id="baseUrlSection">
+      <label>🔗 自定义接口地址</label>
+      <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
+      <p class="hint">OpenAI 兼容格式的 API 地址，如 https://your-proxy.com/v1</p>
+    </div>
+
+    <!-- Model -->
+    <div class="section">
+      <label>🤖 模型</label>
+      <input type="text" id="customModel" placeholder="claude-sonnet-4-6">
+      <p class="hint" id="modelHint">输入模型 ID，如 claude-sonnet-4-6 / gpt-5 / deepseek-v4-flash</p>
+    </div>
+
+    <!-- Quick models -->
+    <div class="section">
+      <label>📋 快捷模型</label>
+      <div id="quickModels"></div>
+    </div>
+
+    <button class="btn-save" id="btnSave">💾 保存设置</button>
+    <div class="test-result" id="testResult"></div>
+    <div class="toast" id="toast">✅ 已保存</div>
   </div>
-
-  <!-- API Key -->
-  <div class="section">
-    <label id="keyLabel">🔑 API Key</label>
-    <input type="password" id="apiKey" placeholder="sk-...">
-    <p class="hint" id="keyHint">
-      <a href="https://console.anthropic.com/settings/keys" target="_blank">获取 Anthropic API Key</a>
-    </p>
-  </div>
-
-  <!-- 自定义 Base URL（仅 custom 提供商显示） -->
-  <div class="section hidden" id="baseUrlSection">
-    <label>🔗 自定义接口地址</label>
-    <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
-    <p class="hint">OpenAI 兼容格式的 API 地址，如 https://your-proxy.com/v1</p>
-  </div>
-
-  <!-- 模型选择 -->
-  <div class="section">
-    <label>🤖 模型</label>
-    <input type="text" id="customModel" placeholder="claude-sonnet-4-6">
-    <p class="hint" id="modelHint">输入模型 ID，如 claude-sonnet-4-6 / gpt-5 / deepseek-v4-flash</p>
-  </div>
-
-  <!-- 快捷模型按钮 -->
-  <div class="section">
-    <label>📋 快捷模型</label>
-    <div id="quickModels" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-  </div>
-
-  <button class="btn-save" id="btnSave">💾 保存设置</button>
-  <div class="test-result" id="testResult"></div>
-  <div class="toast" id="toast">✅ 已保存</div>
 
   <script src="options.js"></script>
 </body>

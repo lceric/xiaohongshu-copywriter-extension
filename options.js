@@ -97,16 +97,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const models = config.quickModels;
     if (models.length) {
       quickModelsEl.innerHTML = models.map((m) =>
-        `<button class="qmodel" data-model="${m}" style="padding:4px 10px;border:1px solid #ddd;border-radius:14px;background:#fff;font-size:11px;cursor:pointer;">${m}</button>`
+        `<button class="qmodel" data-model="${m}">${m}</button>`
       ).join('');
     } else {
-      quickModelsEl.innerHTML = '<span style="font-size:11px;color:#bbb;">手动输入模型 ID</span>';
+      quickModelsEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted, #a09880);">手动输入模型 ID</span>';
     }
   }
 
   // 初始化界面
   providerEl.value = currentProvider;
   updateUI(currentProvider);
+
+  // 恢复已保存的 API Key（密码框不会自动回填）
+  apiKeyEl.value = saved.apiKey || '';
 
   // 加载 base URL
   if (currentProvider === 'custom') {
@@ -124,9 +127,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   quickModelsEl.addEventListener('click', (e) => {
     if (e.target.classList.contains('qmodel')) {
       customModelEl.value = e.target.dataset.model;
-      quickModelsEl.querySelectorAll('.qmodel').forEach((b) => b.style.background = '#fff');
-      e.target.style.background = '#fff0f3';
-      e.target.style.borderColor = '#ff2442';
+      quickModelsEl.querySelectorAll('.qmodel').forEach((b) => b.classList.remove('active'));
+      e.target.classList.add('active');
     }
   });
 

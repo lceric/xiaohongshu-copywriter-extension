@@ -21,9 +21,17 @@ const SYSTEM_PROMPT = `你是一个专业的内容创作者，擅长根据参考
 - 如果笔记没有文字，坦诚告知并基于标题发挥
 - 如果要求多个版本，用 --- 分隔各版本，并在每个版本前标注「版本N：角度描述」`;
 
+// --- 工具: 更新状态指示器 ---
+function setStatus(el, dot, text, type) {
+  el.textContent = text;
+  el.className = type;
+  if (dot) dot.className = 'status-dot ' + type;
+}
+
 // --- 生命周期 ---
 document.addEventListener('DOMContentLoaded', async () => {
   const statusEl   = document.getElementById('status');
+  const statusDot  = document.getElementById('statusDot');
   const sourceToggle = document.getElementById('sourceToggle');
   const sourceCard = document.getElementById('sourceCard');
   const customPrompt = document.getElementById('customPrompt');
@@ -42,20 +50,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const url = tab?.url || '';
 
   if (!url.includes('xiaohongshu.com') || (!url.includes('/explore/') && !url.includes('/discovery/item/'))) {
-    statusEl.textContent = '⚠️ 请打开一篇小红书笔记页面';
-    statusEl.className = 'error';
+    setStatus(statusEl, statusDot, '⚠️ 请打开一篇小红书笔记页面', 'error');
     return;
   }
 
-  statusEl.textContent = '⏳ 正在读取笔记...';
-  statusEl.className = 'loading';
+  setStatus(statusEl, statusDot, '⏳ 正在读取笔记...', 'loading');
 
   try {
     const response = await chrome.tabs.sendMessage(tab.id, { action: 'extract' });
     if (response && response.success) {
       noteContent = response;
-      statusEl.textContent = `✅ 已读取 · ${response.author || '未知作者'} · ${(response.body || '').length}字`;
-      statusEl.className = 'success';
+      setStatus(statusEl, statusDot, `✅ 已读取 · ${response.author || '未知作者'} · ${(response.body || '').length}字`, 'success');
       btnGenerate.disabled = false;
       btnCopy.disabled = false;
 
@@ -66,12 +71,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         response.body ? `\n${response.body}` : '',
       ].filter(Boolean).join('\n');
     } else {
-      statusEl.textContent = '⚠️ 未能识别笔记内容';
-      statusEl.className = 'error';
+      setStatus(statusEl, statusDot, '⚠️ 未能识别笔记内容', 'error');
     }
   } catch (err) {
-    statusEl.textContent = '⚠️ 读取失败，请刷新页面后重试';
-    statusEl.className = 'error';
+    setStatus(statusEl, statusDot, '⚠️ 读取失败，请刷新页面后重试', 'error');
   }
 
   // 加载上次输入的自定义指令
@@ -105,8 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const instructions = customPrompt.value.trim();
     if (!instructions) {
-      statusEl.textContent = '⚠️ 请输入生成指令，或点击下方快捷按钮';
-      statusEl.className = 'error';
+      setStatus(statusEl, statusDot, '⚠️ 请输入生成指令，或点击下方快捷按钮', 'error');
       customPrompt.focus();
       return;
     }
@@ -122,8 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'provider', 'apiKey', 'baseUrl', 'model', 'apiFormat',
     ]);
     if (!settings.apiKey) {
-      statusEl.textContent = '⚠️ 请先在设置中配置 API Key（点 ⚙️）';
-      statusEl.className = 'error';
+      setStatus(statusEl, statusDot, '⚠️ 请先在设置中配置 API Key（点 ⚙️）', 'error');
       chrome.runtime.openOptionsPage();
       return;
     }
@@ -140,8 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnGenerate.classList.add('generating');
     btnGenerate.disabled = true;
     btnCopy.disabled = true;
-    statusEl.textContent = count > 1 ? `🤖 AI 正在生成 ${count} 个版本...` : '🤖 AI 正在创作...';
-    statusEl.className = 'loading';
+    setStatus(statusEl, statusDot, count > 1 ? `🤖 AI 正在生成 ${count} 个版本...` : '🤖 AI 正在创作...', 'loading');
 
     try {
       const generated = await callAI(settings, noteContent, instructions, count);
@@ -161,8 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnGenerate.classList.remove('generating');
       btnGenerate.disabled = false;
       btnCopy.disabled = false;
-      statusEl.textContent = '✅ 生成完成';
-      statusEl.className = 'success';
+      setStatus(statusEl, statusDot, '✅ 生成完成', 'success');
     } catch (err) {
       loadingDots.style.display = 'none';
       resultText.innerHTML = `<div style="color:#ff2442;">❌ ${escapeHtml(err.message)}</div>`;
@@ -170,8 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnGenerate.classList.remove('generating');
       btnGenerate.disabled = false;
       btnCopy.disabled = false;
-      statusEl.textContent = '❌ 生成失败，请检查 API Key 或网络';
-      statusEl.className = 'error';
+      setStatus(statusEl, statusDot, '❌ 生成失败，请检查 API Key 或网络', 'error');
     }
   });
 

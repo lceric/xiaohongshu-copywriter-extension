@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "小红书→AI文案生成器",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "description": "一键提取小红书笔记，直接调用 Claude 生成文案",
   "permissions": ["activeTab", "scripting", "clipboardWrite", "storage"],
   "host_permissions": [
