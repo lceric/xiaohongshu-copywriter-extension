@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "小红书→AI文案生成器",
+  "version": "2.1.0",
+  "description": "一键提取小红书笔记，直接调用 Claude 生成文案",
+  "permissions": ["activeTab", "scripting", "clipboardWrite", "storage"],
+  "host_permissions": [
+    "*://*.xiaohongshu.com/*",
+    "*://*.xhslink.com/*",
+    "https://api.anthropic.com/*",
+    "https://api.openai.com/*",
+    "https://api.deepseek.com/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "小红书→AI文案",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.xiaohongshu.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

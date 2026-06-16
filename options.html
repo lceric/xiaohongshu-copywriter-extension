@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 460px;
+      min-height: 300px;
+      font-family: -apple-system, "Microsoft YaHei", sans-serif;
+      background: #fff;
+      padding: 20px;
+    }
+    h1 { font-size: 16px; color: #333; margin-bottom: 4px; }
+    .sub { font-size: 12px; color: #999; margin-bottom: 16px; }
+
+    .section {
+      background: #f8f8f8;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .section label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .section input, .section select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .section input:focus, .section select:focus {
+      outline: none; border-color: #ff2442;
+    }
+    .section input[type="password"] { font-family: monospace; }
+
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+
+    .hint { font-size: 11px; color: #bbb; margin-top: 4px; }
+    .hint a { color: #ff2442; }
+
+    .hidden { display: none; }
+
+    .btn-save {
+      width: 100%;
+      padding: 10px;
+      background: #ff2442;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: #e0203b; }
+    .btn-save.saved { background: #07c160; }
+
+    .toast {
+      text-align: center;
+      font-size: 12px;
+      color: #07c160;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; }
+
+    .test-result {
+      font-size: 12px;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+    .test-result.ok { color: #07c160; }
+    .test-result.fail { color: #ff2442; }
+  </style>
+</head>
+<body>
+  <h1>⚙️ API 设置</h1>
+  <p class="sub">支持 Anthropic / OpenAI / DeepSeek 及兼容接口</p>
+
+  <!-- 提供商选择 -->
+  <div class="section">
+    <label>🏢 API 提供商</label>
+    <select id="provider">
+      <option value="anthropic">Anthropic（Claude）</option>
+      <option value="openai">OpenAI（GPT 系列）</option>
+      <option value="deepseek">DeepSeek</option>
+      <option value="custom">自定义（OpenAI 兼容接口）</option>
+    </select>
+  </div>
+
+  <!-- API Key -->
+  <div class="section">
+    <label id="keyLabel">🔑 API Key</label>
+    <input type="password" id="apiKey" placeholder="sk-...">
+    <p class="hint" id="keyHint">
+      <a href="https://console.anthropic.com/settings/keys" target="_blank">获取 Anthropic API Key</a>
+    </p>
+  </div>
+
+  <!-- 自定义 Base URL（仅 custom 提供商显示） -->
+  <div class="section hidden" id="baseUrlSection">
+    <label>🔗 自定义接口地址</label>
+    <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
+    <p class="hint">OpenAI 兼容格式的 API 地址，如 https://your-proxy.com/v1</p>
+  </div>
+
+  <!-- 模型选择 -->
+  <div class="section">
+    <label>🤖 模型</label>
+    <input type="text" id="customModel" placeholder="claude-sonnet-4-6">
+    <p class="hint" id="modelHint">输入模型 ID，如 claude-sonnet-4-6 / gpt-5 / deepseek-v4-flash</p>
+  </div>
+
+  <!-- 快捷模型按钮 -->
+  <div class="section">
+    <label>📋 快捷模型</label>
+    <div id="quickModels" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
+
+  <button class="btn-save" id="btnSave">💾 保存设置</button>
+  <div class="test-result" id="testResult"></div>
+  <div class="toast" id="toast">✅ 已保存</div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 440px;
+      min-height: 200px;
+      font-family: -apple-system, "Microsoft YaHei", sans-serif;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .header .left {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo {
+      width: 26px; height: 26px;
+      background: #ff2442;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: bold;
+    }
+    .header h1 { font-size: 14px; color: #333; }
+    .settings-link {
+      font-size: 18px; text-decoration: none; cursor: pointer;
+    }
+
+    #status {
+      font-size: 11px; color: #999; margin-bottom: 8px; min-height: 16px;
+    }
+    #status.success { color: #07c160; }
+    #status.error { color: #ff2442; }
+    #status.loading { color: #ff8200; }
+
+    /* 来源内容折叠区 */
+    .source-toggle {
+      font-size: 11px; color: #ff2442; cursor: pointer;
+      margin-bottom: 8px; user-select: none;
+    }
+    .source-card {
+      background: #fafafa; border-radius: 6px; padding: 10px;
+      margin-bottom: 10px; max-height: 130px; overflow-y: auto;
+      font-size: 12px; color: #666; line-height: 1.5;
+      white-space: pre-wrap; word-break: break-word;
+      display: none;
+    }
+    .source-card.show { display: block; }
+
+    /* 自定义指令输入 */
+    .input-label {
+      font-size: 11px; color: #888; margin-bottom: 4px;
+    }
+    .custom-input {
+      width: 100%; min-height: 52px; max-height: 80px;
+      padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px;
+      font-size: 13px; font-family: inherit; line-height: 1.5;
+      resize: vertical;
+    }
+    .custom-input:focus { outline: none; border-color: #ff2442; }
+    .custom-input::placeholder { color: #ccc; }
+
+    /* 快捷按钮 + 数量 */
+    .controls-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px; gap: 8px;
+    }
+    .quick-types {
+      display: flex; gap: 4px; flex-wrap: wrap;
+    }
+    .quick-types button {
+      padding: 3px 8px; border: 1px solid #e8e8e8; border-radius: 12px;
+      background: #fff; font-size: 10px; color: #888; cursor: pointer;
+      transition: all 0.12s; white-space: nowrap;
+    }
+    .quick-types button:hover { border-color: #ff2442; color: #ff2442; }
+
+    .count-box {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .count-box label { font-size: 11px; color: #888; white-space: nowrap; }
+    .count-box input {
+      width: 40px; padding: 4px 6px; border: 1px solid #e0e0e0;
+      border-radius: 4px; font-size: 12px; text-align: center;
+    }
+    .count-box input:focus { outline: none; border-color: #ff2442; }
+
+    /* 生成结果 */
+    .result-card {
+      background: #f8f8f8; border-radius: 8px; padding: 12px;
+      margin-bottom: 10px; max-height: 320px; overflow-y: auto;
+      font-size: 13px; color: #333; line-height: 1.6;
+      display: none;
+    }
+    .result-card.show { display: block; }
+    .result-card .loading-dots {
+      color: #999; text-align: center; padding: 20px;
+    }
+    .result-card .loading-dots::after {
+      content: '...'; animation: dots 1.5s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; }
+    }
+    .version-block {
+      margin-bottom: 14px; padding-bottom: 14px;
+      border-bottom: 1px dashed #e0e0e0;
+    }
+    .version-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .version-label {
+      font-size: 10px; color: #ff2442; font-weight: 600;
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* 操作按钮 */
+    .actions { display: flex; gap: 8px; }
+    button {
+      flex: 1; padding: 10px 0; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.15s;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-gen {
+      background: #ff2442; color: #fff; flex: 3;
+    }
+    .btn-gen:hover:not(:disabled) { background: #e0203b; }
+    .btn-gen.generating { background: #ff8200; }
+
+    .btn-copy {
+      background: #f0f0f0; color: #333; flex: 1;
+    }
+    .btn-copy:hover:not(:disabled) { background: #e0e0e0; }
+
+    .toast {
+      position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+      background: #333; color: #fff; padding: 8px 16px;
+      border-radius: 20px; font-size: 12px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 99;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="left">
+      <div class="logo">小</div>
+      <h1>小红书→AI文案</h1>
+    </div>
+    <a class="settings-link" id="btnSettings" title="API 设置">⚙️</a>
+  </div>
+
+  <div id="status">🔍 正在读取笔记...</div>
+
+  <div class="source-toggle" id="sourceToggle">📝 查看笔记原文 ▾</div>
+  <div class="source-card" id="sourceCard"></div>
+
+  <div class="input-label">💬 告诉 AI 怎么生成：</div>
+  <textarea class="custom-input" id="customPrompt"
+    placeholder="例如：写一篇小红书种草文案，用幽默风格，突出性价比"></textarea>
+
+  <div class="controls-row">
+    <div class="quick-types" id="quickTypes">
+      <button data-fill="写一篇小红书文案，口语化种草风格，加 emoji 和话题标签">📕 小红书</button>
+      <button data-fill="写一段朋友圈文案，短小精悍，有情感温度">💬 朋友圈</button>
+      <button data-fill="写一个短视频脚本，带画面描述和配音，开头要有钩子">🎬 短视频</button>
+      <button data-fill="写一篇公众号文章，结构清晰，有深度">📰 公众号</button>
+    </div>
+    <div class="count-box">
+      <label for="genCount">生成</label>
+      <input type="number" id="genCount" value="1" min="1" max="10">
+      <label for="genCount">篇</label>
+    </div>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div class="loading-dots" id="loadingDots">生成中</div>
+    <div id="resultText"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-gen" id="btnGenerate" disabled>🤖 AI 生成文案</button>
+    <button class="btn-copy" id="btnCopy" disabled>📋 复制</button>
+  </div>
+
+  <div class="toast" id="toast">✅ 已复制</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
