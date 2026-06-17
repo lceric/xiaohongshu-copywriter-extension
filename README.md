@@ -2,6 +2,8 @@
 
 Chrome 浏览器插件，一键提取小红书笔记内容，直接调用 AI 生成文案。
 
+<img width="440" height="311" alt="image" src="https://github.com/user-attachments/assets/e8ed1dbc-9b3b-4944-bc7a-174d15517ccc" />
+
 ## 功能
 
 - 📖 **一键提取**：在小红书笔记页面自动抓取标题、正文、作者、标签
