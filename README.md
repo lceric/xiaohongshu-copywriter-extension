@@ -2,7 +2,7 @@
 
 Chrome 浏览器插件，一键提取小红书笔记内容，直接调用 AI 生成文案。
 
-<img width="440" height="311" alt="screenshot" src="./assets/ui.png" />
+![./assets/ui.png](assets/ui.png)
 
 ## 功能
 
